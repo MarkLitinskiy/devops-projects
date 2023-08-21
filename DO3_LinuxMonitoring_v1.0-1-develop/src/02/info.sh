@@ -1,0 +1,32 @@
+#! /bin/bash
+
+time_zone=$(timedatectl | grep "Time zone" | awk '{print $3 $4 $5}')
+os=$(lsb_release -ds)
+date=$(date +"%d %b %Y %H:%M:%S")
+uptime=$(uptime -p | awk '{print $2 " " $3 " " $4 " " $5}')
+uptime_sec=$(cat /proc/uptime | awk '{print $1}')
+ip=$(hostname -I)
+mask=$(ifconfig | sed -n -e '/netmask/p' | sed 1q | awk '{print $4}')
+gateway=$(ip route | grep default | sed 1q | awk '{print $3}')
+ram_total=$(free -m | awk '/^Mem:/ { printf("%.3f\n", $2/1024) }')
+ram_used=$(free -m | awk '/^Mem:/ { printf("%.3f\n", $3/1024) }')
+ram_free=$(free -m | awk '/^Mem:/ { printf("%.3f\n", $4/1024) }')
+space_root=$(df / | grep "/" | awk '{printf "%.3f\n", $2/1024}')
+space_root_used=$(df / | grep "/" | awk '{printf "%.3f\n", $3/1024}')
+space_root_free=$(df / | grep "/" | awk '{printf "%.3f\n", $4/1024}')
+echo "HOSTNAME = $HOSTNAME"
+echo "TIMEZONE = $time_zone"
+echo "USER = $USER"
+echo "OS = $os"
+echo "DATE = $date"
+echo "UPTIME = $uptime"
+echo "UPTIME_SEC = $uptime_sec"
+echo "IP = $ip"
+echo "MASK = $mask"
+echo "GATEWAY = $gateway"
+echo "RAM_TOTAL = $ram_total Gb"
+echo "RAM_USED = $ram_used Gb"
+echo "RAM_FREE = $ram_free Gb"
+echo "SPACE_ROOT = $space_root Mb"
+echo "SPACE_ROOT_USED  = $space_root_used Mb"
+echo "SPACE_ROOT_FREE  = $space_root_free Mb"

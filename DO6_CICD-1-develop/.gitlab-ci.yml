@@ -1,0 +1,58 @@
+stages:
+  - build
+  - code_style_test
+  - functional_test
+  - deploy
+  - notify
+
+build-job:
+  stage: build
+  script:
+    - echo "Start build job"
+    - cd src/Simple_Bash_Utils && make build && cd ..
+    - chmod +x telegram_bot_conf.sh
+    - bash telegram_bot_conf.sh Build_status ✅
+  artifacts:
+    expire_in: 30 days
+    paths:
+      - src/Simple_Bash_Utils/cat/s21_cat
+      - src/Simple_Bash_Utils/grep/s21_grep
+  
+  
+code_style-job:
+  stage: code_style_test
+  script:
+    - echo "Start code_style test job"
+    - cd src/Simple_Bash_Utils && make check_style && cd ..
+    - bash telegram_bot_conf.sh Code_style_test_status ✅
+
+functional_test-job:
+  stage: functional_test
+  allow_failure: false
+  script:
+    - echo "Start functional_test job"
+    - cd src/Simple_Bash_Utils && make check_func && cd ..
+    - bash telegram_bot_conf.sh Functional_test_status ✅
+
+deploy-job:
+  stage: deploy
+  allow_failure: false
+  when: manual
+  script:
+    - echo "Start deploy job"
+    - chmod +x src/deploy.sh
+    - bash src/deploy.sh
+    - bash src/telegram_bot_conf.sh Deploy_status ✅
+
+notify_fail-job:
+  stage: notify
+  script:
+    - chmod +x src/telegram_bot_conf.sh
+    - bash src/telegram_bot_conf.sh Job_Error ❌
+  when: on_failure
+  
+notify_ok-job:
+  stage: notify
+  script:
+    - bash src/telegram_bot_conf.sh Success ✅
+  when: on_success
